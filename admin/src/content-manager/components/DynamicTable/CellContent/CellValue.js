@@ -8,11 +8,11 @@ const CellValue = ({ type, value }) => {
   let formattedValue = value;
 
   if (type === 'date') {
-    formattedValue = formatDate(parseISO(value), { dateStyle: 'full' });
+    formattedValue = formatDate(parseISO(value), { dateStyle: 'medium' });
   }
 
   if (type === 'datetime') {
-    formattedValue = formatDate(value, { dateStyle: 'full', timeStyle: 'short' });
+    formattedValue = formatDate(value, { dateStyle: 'short', timeStyle: 'short' });
   }
 
   if (type === 'time') {

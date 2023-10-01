@@ -21,11 +21,48 @@ import { useFilter, useCollator } from '@strapi/helper-plugin';
 import getTrad from '../../../utils/getTrad';
 import { makeSelectModelLinks } from '../selectors';
 
+const sortByArray = (array, data) => {
+  const results = []
+  for (let i in array) {
+    results.push(data.find(e => e.uid === array[i]))
+  }
+
+  return results.filter(e => e && e !== null && e !== undefined)
+}
+
 const LeftMenu = () => {
   const [search, setSearch] = useState('');
   const { formatMessage, locale } = useIntl();
   const modelLinksSelector = useMemo(makeSelectModelLinks, []);
   const { collectionTypeLinks, singleTypeLinks } = useSelector(modelLinksSelector, shallowEqual);
+  console.debug("[DEBUG] ~ file: index.js:29 ~ singleTypeLinks:", singleTypeLinks)
+  console.debug("[DEBUG] ~ file: index.js:29 ~ collectionTypeLinks:", collectionTypeLinks)
+
+  const mainLinks = [
+    "api::post.post",
+    "api::page.page",
+    "api::category.category",
+    "api::letak.letak",
+    "api::event.event",
+    "api::video.video",
+    "api::banner.banner",
+    "api::member.member",
+  ];
+
+  const otherLinks = [
+    "plugin::users-permissions.user",
+    "api::career.career",
+    "api::career-form.career-form",
+    "api::contact-form.contact-form",
+    "api::faq.faq",
+    "api::setting.setting",
+    "api::store.store",
+    "api::subscriber.subscriber",
+    "api::supllier.supllier",
+    "api::tag.tag",
+    "api::translation.translation",
+    "api::website.website"
+  ];
 
   const { startsWith } = useFilter(locale, {
     sensitivity: 'base',
@@ -43,19 +80,19 @@ const LeftMenu = () => {
       [
         {
           id: 'collectionTypes',
-          title: {
-            id: getTrad('components.LeftMenu.collection-types'),
-            defaultMessage: 'Collection Types',
-          },
+          title: 'Main Contents',
           searchable: true,
-          links: collectionTypeLinks,
+          links: sortByArray(mainLinks, collectionTypeLinks),
+        },
+        {
+          id: 'collectionTypes2',
+          title: 'Additional Contents',
+          searchable: true,
+          links: sortByArray(otherLinks, collectionTypeLinks),
         },
         {
           id: 'singleTypes',
-          title: {
-            id: getTrad('components.LeftMenu.single-types'),
-            defaultMessage: 'Single Types',
-          },
+          title: 'Settings',
           searchable: true,
           links: singleTypeLinks,
         },
@@ -69,7 +106,7 @@ const LeftMenu = () => {
           /**
            * Sort correctly using the language
            */
-          .sort((a, b) => formatter.compare(a.title, b.title))
+          // .sort((a, b) => formatter.compare(a.title, b.title))
           /**
            * Apply the formated strings to the links from react-intl
            */
@@ -91,10 +128,7 @@ const LeftMenu = () => {
     setSearch(value);
   };
 
-  const label = formatMessage({
-    id: getTrad('header.name'),
-    defaultMessage: 'Content',
-  });
+  const label = 'Content Manager';
 
   return (
     <SubNav ariaLabel={label}>
@@ -111,10 +145,7 @@ const LeftMenu = () => {
       />
       <SubNavSections>
         {menu.map((section) => {
-          const label = formatMessage(
-            { id: section.title.id, defaultMessage: section.title.defaultMessage },
-            section.title.values
-          );
+          const label = section.title;
 
           return (
             <SubNavSection

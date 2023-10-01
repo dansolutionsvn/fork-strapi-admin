@@ -16,8 +16,14 @@ const useAllowedAttributes = (contentType, slug) => {
 
   const readPermissionForAttr = get(readPermissionsForSlug, ['0', 'properties', 'fields'], []);
   const attributesArray = Object.keys(get(contentType, ['attributes']), {});
+  const disalowedTypes = ["websites", "website", "old_id", "domain"]
+
   const allowedAttributes = attributesArray
     .filter((attr) => {
+      if (disalowedTypes.includes(attr)) {
+        return false;
+      }
+
       const current = get(contentType, ['attributes', attr], {});
 
       if (!current.type) {

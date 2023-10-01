@@ -14,7 +14,7 @@ import {
   NavCondense,
   NavFooter,
 } from '@strapi/design-system/v2';
-import { Write, Exit } from '@strapi/icons';
+import { Write, Exit, CheckCircle } from '@strapi/icons';
 import {
   auth,
   usePersistentState,
@@ -23,6 +23,7 @@ import {
   getFetchClient,
 } from '@strapi/helper-plugin';
 import { useConfigurations } from '../../hooks';
+import { VALID_CONTEXT, useCurrentWebsiteContext } from '../../content-manager/utils/websiteContext'
 
 const LinkUserWrapper = styled(Box)`
   width: ${150 / 16}rem;
@@ -96,8 +97,10 @@ const LeftMenu = ({ generalSectionLinks, pluginsSectionLinks }) => {
 
   const menuTitle = formatMessage({
     id: 'app.components.LeftMenu.navbrand.title',
-    defaultMessage: 'Strapi Dashboard',
+    defaultMessage: 'Dashboard',
   });
+
+  const [currentWebsiteContext, setCurrentWebsiteContext] = useCurrentWebsiteContext()
 
   return (
     <MainNav condensed={condensed}>
@@ -120,8 +123,15 @@ const LeftMenu = ({ generalSectionLinks, pluginsSectionLinks }) => {
       />
 
       <Divider />
-
       <NavSections>
+        <NavLink
+            as={RouterNavLink}
+            to="/"
+            icon={<CheckCircle />}
+          >
+          Working on {currentWebsiteContext ?? "all websites"}
+        </NavLink>
+        <Divider />
         <NavLink
           as={RouterNavLink}
           to="/content-manager"

@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
 import useAllowedAttributes from './hooks/useAllowedAttributes';
 import Filters from './Filters';
+import { toSentenceCase } from '../../../utils'
 
 const AttributeFilter = ({ contentType, slug, metadatas }) => {
   const { formatMessage } = useIntl();
@@ -20,7 +21,7 @@ const AttributeFilter = ({ contentType, slug, metadatas }) => {
 
     return {
       name,
-      metadatas: { label: formatMessage({ id: label, defaultMessage: label }) },
+      metadatas: { label: formatMessage({ id: label, defaultMessage: toSentenceCase(label) }) },
       fieldSchema: { type, options, mainField },
       trackedEvent,
     };
