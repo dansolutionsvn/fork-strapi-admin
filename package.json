@@ -137,7 +137,7 @@
     "webpack-bundle-analyzer": "^4.8.0"
   },
   "peerDependencies": {
-    "@strapi/strapi": "@danhuyenphan/strapi@4.9.4"
+    "@strapi/strapi": "@dansolutionsvn/fork-strapi"
   },
   "engines": {
     "node": ">=14.19.1 <=18.x.x",
