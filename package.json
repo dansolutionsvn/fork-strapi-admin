@@ -1,24 +1,8 @@
 {
-  "name": "@strapi/admin",
+  "name": "@danhuyenphan/strapi-admin",
   "version": "4.9.2",
   "description": "Strapi Admin",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/strapi/strapi.git"
-  },
-  "license": "SEE LICENSE IN LICENSE",
-  "author": {
-    "name": "Strapi Solutions SAS",
-    "email": "hi@strapi.io",
-    "url": "https://strapi.io"
-  },
-  "maintainers": [
-    {
-      "name": "Strapi Solutions SAS",
-      "email": "hi@strapi.io",
-      "url": "https://strapi.io"
-    }
-  ],
+  "license": "MIT",
   "main": "index.js",
   "scripts": {
     "analyze:bundle": "ANALYZE_BUNDLE=true webpack --config webpack.config.dev.js",
@@ -26,7 +10,7 @@
     "create:plugin-file": "node ./scripts/create-dev-plugins-file.js",
     "develop": "yarn create:plugin-file && yarn develop:webpack",
     "develop:webpack": "cross-env NODE_ENV=development webpack serve --config webpack.config.dev.js --progress profile",
-    "prepublishOnly": "yarn build",
+    "prepublishOnly": "",
     "build": "rimraf build && node ./scripts/build.js",
     "build:measure": "rimraf build && cross-env MEASURE_BUILD_SPEED=true node ./scripts/build.js",
     "test": "echo \"no tests yet\"",
@@ -153,7 +137,7 @@
     "webpack-bundle-analyzer": "^4.8.0"
   },
   "peerDependencies": {
-    "@strapi/strapi": "^4.3.4"
+    "@strapi/strapi": "@danhuyenphan/strapi@4.9.2"
   },
   "engines": {
     "node": ">=14.19.1 <=18.x.x",
@@ -168,5 +152,7 @@
       }
     }
   },
-  "gitHead": "91e0be2708e4d1e8ec731c75e73e54c0dfacb67d"
+  "directories": {
+    "doc": "doc"
+  }
 }
