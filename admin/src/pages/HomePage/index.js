@@ -44,6 +44,9 @@ import {
   VALID_CONTEXT,
   useCurrentWebsiteContext,
 } from "../../content-manager/utils/websiteContext";
+import { fetchUser, putUser } from '../../pages/ProfilePage/utils/api';
+import { useQuery, useMutation, useQueryClient } from 'react-query';
+
 
 const LogoContainer = styled(Box)`
   position: absolute;
@@ -112,9 +115,28 @@ const HomePage = () => {
     }, 200);
   };
 
-  if (isLoadingForModels) {
+  const { status, data: currentUser } = useQuery('user', () => fetchUser(), {
+    onSuccess() {
+      console.log('success')
+    },
+    onError() {
+      toggleNotification({
+        type: 'warning',
+        message: { id: 'notification.error', defaultMessage: 'An error occured' },
+      });
+    },
+  });
+  console.debug("[DEBUG] ~ file: index.js:127 ~ currentUser:", currentUser)
+
+
+  const isFetchingUser = status !== 'success';
+  const authorizedWebsites = currentUser?.roles?.filter(e => VALID_CONTEXT.includes(e.name)).map(e => e.name);
+
+  if (isLoadingForModels || isFetchingUser) {
     return <LoadingIndicatorPage />;
   }
+
+  const isAdmin = (authorizedWebsites.length === 4 || currentUser?.roles?.find(e => e.code === "strapi-super-admin"));
 
   return (
     <Layout>
@@ -133,41 +155,57 @@ const HomePage = () => {
                 background="neutral0"
                 shadow="tableShadow"
               >
-                <h3
-                  style={{
+                {authorizedWebsites.length > 0 ? (
+                  <>
+                    <h3
+                      style={{
+                        fontWeight: "600",
+                        fontSize: "18px",
+                        color: "#999",
+                        marginBottom: "15px",
+                      }}
+                    >
+                      Choose website below to edit
+                    </h3>
+                    <Flex gap="2rem" justify="center" align="space-between">
+                      {isAdmin && (
+                        <Button
+                          disabled={!!isLoading}
+                          onClick={() => handleSetWebsiteContext("")}
+                          endIcon={!currentWebsiteContext ? <Check /> : <Play />}
+                          variant={!currentWebsiteContext ? "primary" : "tertiary"}
+                        >
+                          {"All websites"}
+                        </Button>
+                      )}
+                      {authorizedWebsites.map((e) => (
+                        <Button
+                          disabled={!!isLoading}
+                          onClick={() => handleSetWebsiteContext(e)}
+                          endIcon={
+                            e == currentWebsiteContext ? <Check /> : <Play />
+                          }
+                          variant={
+                            e == currentWebsiteContext ? "primary" : "tertiary"
+                          }
+                          key={e}
+                        >
+                          {e?.toUpperCase()}
+                        </Button>
+                      ))}
+                    </Flex>
+                  </>
+                ) : (
+                  <h3 style={{
                     fontWeight: "600",
                     fontSize: "18px",
                     color: "#999",
                     marginBottom: "15px",
-                  }}
-                >
-                  Choose website below to edit
-                </h3>
-                <Flex gap="2rem" justify="center" align="space-between">
-                  <Button
-                    disabled={!!isLoading}
-                    onClick={() => handleSetWebsiteContext("")}
-                    endIcon={!currentWebsiteContext ? <Check /> : <Play />}
-                    variant={!currentWebsiteContext ? "primary" : "tertiary"}
-                  >
-                    {"All websites"}
-                  </Button>
-                  {VALID_CONTEXT.map((e) => (
-                    <Button
-                      disabled={!!isLoading}
-                      onClick={() => handleSetWebsiteContext(e)}
-                      endIcon={
-                        e == currentWebsiteContext ? <Check /> : <Play />
-                      }
-                      variant={
-                        e == currentWebsiteContext ? "primary" : "tertiary"
-                      }
-                      key={e}
-                    >
-                      {e?.toUpperCase()}
-                    </Button>
-                  ))}
-                </Flex>
+                    color: "red",
+                  }}>
+                    Permission denied. Ask your administrator to grant access to atleast 1 website to continue.
+                  </h3>
+                )}
               </Box>
             </GridItem>
           </Grid>
@@ -213,34 +251,43 @@ const HomePage = () => {
                   >
                     Translations
                   </LinkButton>
-                  <LinkButton
-                    variant={"tertiary"}
-                    endIcon={<ArrowRight />}
-                    to="/content-manager/singleType/api::tamda-group-eu-setting.tamda-group-eu-setting"
-                  >
-                    Tamda Group Global Settings
-                  </LinkButton>
-                  <LinkButton
-                    variant={"tertiary"}
-                    endIcon={<ArrowRight />}
-                    to="/content-manager/singleType/api::tamda-foods-eu-setting.tamda-foods-eu-setting"
-                  >
-                    Tamda Foods Global Settings
-                  </LinkButton>
-                  <LinkButton
-                    variant={"tertiary"}
-                    endIcon={<ArrowRight />}
-                    to="/content-manager/singleType/api::tamda-oc-eu-setting.tamda-oc-eu-setting"
-                  >
-                    Tamda OC Global Settings
-                  </LinkButton>
-                  <LinkButton
-                    variant={"tertiary"}
-                    endIcon={<ArrowRight />}
-                    to="/content-manager/singleType/api::tamda-media-eu-setting.tamda-media-eu-setting"
-                  >
-                    Tamda Media Global Settings
-                  </LinkButton>
+
+                  {isAdmin || authorizedWebsites.includes("tamdagroup.eu") && (
+                    <LinkButton
+                      variant={"tertiary"}
+                      endIcon={<ArrowRight />}
+                      to="/content-manager/singleType/api::tamda-group-eu-setting.tamda-group-eu-setting"
+                    >
+                      Tamda Group Global Settings
+                    </LinkButton>
+                  )}
+                  {isAdmin || authorizedWebsites.includes("tamdafoods.eu") && (
+                    <LinkButton
+                      variant={"tertiary"}
+                      endIcon={<ArrowRight />}
+                      to="/content-manager/singleType/api::tamda-foods-eu-setting.tamda-foods-eu-setting"
+                    >
+                      Tamda Foods Global Settings
+                    </LinkButton>
+                  )}
+                  {isAdmin || authorizedWebsites.includes("tamdaoc.eu") && (
+                    <LinkButton
+                      variant={"tertiary"}
+                      endIcon={<ArrowRight />}
+                      to="/content-manager/singleType/api::tamda-oc-eu-setting.tamda-oc-eu-setting"
+                    >
+                      Tamda OC Global Settings
+                    </LinkButton>
+                  )}
+                  {isAdmin || authorizedWebsites.includes("tamdamedia.eu") && (
+                    <LinkButton
+                      variant={"tertiary"}
+                      endIcon={<ArrowRight />}
+                      to="/content-manager/singleType/api::tamda-media-eu-setting.tamda-media-eu-setting"
+                    >
+                      Tamda Media Global Settings
+                    </LinkButton>
+                  )}
                 </LinksContainer>
               </Box>
             </GridItem>
