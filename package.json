@@ -1,6 +1,6 @@
 {
   "name": "@danhuyenphan/strapi-admin",
-  "version": "4.9.4",
+  "version": "4.9.5",
   "description": "Strapi Admin",
   "license": "MIT",
   "main": "index.js",
@@ -137,7 +137,7 @@
     "webpack-bundle-analyzer": "^4.8.0"
   },
   "peerDependencies": {
-    "@strapi/strapi": "@dansolutionsvn/fork-strapi"
+    "@strapi/strapi": "4.9.2"
   },
   "engines": {
     "node": ">=14.19.1 <=18.x.x",
