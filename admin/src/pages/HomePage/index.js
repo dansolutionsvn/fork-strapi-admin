@@ -130,7 +130,7 @@ const HomePage = () => {
 
 
   const isFetchingUser = status !== 'success';
-  const authorizedWebsites = currentUser?.roles?.filter(e => VALID_CONTEXT.includes(e.name)).map(e => e.name);
+  const authorizedWebsites = currentUser?.roles?.find(e => e.code === "strapi-super-admin") ? VALID_CONTEXT : currentUser?.roles?.filter(e => VALID_CONTEXT.includes(e.name)).map(e => e.name);
 
   if (isLoadingForModels || isFetchingUser) {
     return <LoadingIndicatorPage />;
@@ -252,7 +252,7 @@ const HomePage = () => {
                     Translations
                   </LinkButton>
 
-                  {isAdmin || authorizedWebsites.includes("tamdagroup.eu") && (
+                  {(isAdmin || authorizedWebsites.includes("tamdagroup.eu")) && (
                     <LinkButton
                       variant={"tertiary"}
                       endIcon={<ArrowRight />}
@@ -261,7 +261,7 @@ const HomePage = () => {
                       Tamda Group Global Settings
                     </LinkButton>
                   )}
-                  {isAdmin || authorizedWebsites.includes("tamdafoods.eu") && (
+                  {(isAdmin || authorizedWebsites.includes("tamdafoods.eu")) && (
                     <LinkButton
                       variant={"tertiary"}
                       endIcon={<ArrowRight />}
@@ -270,7 +270,7 @@ const HomePage = () => {
                       Tamda Foods Global Settings
                     </LinkButton>
                   )}
-                  {isAdmin || authorizedWebsites.includes("tamdaoc.eu") && (
+                  {(isAdmin || authorizedWebsites.includes("tamdaoc.eu")) && (
                     <LinkButton
                       variant={"tertiary"}
                       endIcon={<ArrowRight />}
@@ -279,7 +279,7 @@ const HomePage = () => {
                       Tamda OC Global Settings
                     </LinkButton>
                   )}
-                  {isAdmin || authorizedWebsites.includes("tamdamedia.eu") && (
+                  {(isAdmin || authorizedWebsites.includes("tamdamedia.eu")) && (
                     <LinkButton
                       variant={"tertiary"}
                       endIcon={<ArrowRight />}

@@ -236,7 +236,8 @@ const CollectionTypeFormWrapper = ({ allLayoutData, children, slug, id, origin }
 
   const onPost = useCallback(
     async (body, trackerProperty) => {
-      const endPoint = `${getRequestUrl(`collection-types/${slug}`)}${rawQuery}`;
+      const requestUrl = getRequestUrl(`collection-types/${slug}`);
+      const endPoint = `${requestUrl}${rawQuery.includes("?") ? rawQuery.replace('?', '&') : rawQuery}`;
       try {
         // Show a loading button in the EditView/Header.js && lock the app => no navigation
         dispatch(setStatus('submit-pending'));
