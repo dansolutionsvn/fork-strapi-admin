@@ -3,7 +3,7 @@
  *
  */
 
-import React, { memo, useMemo, useState } from "react";
+import React, { memo, useEffect, useMemo, useState } from "react";
 import { FormattedMessage } from "react-intl";
 import styled from "styled-components";
 import { Helmet } from "react-helmet";
@@ -24,6 +24,7 @@ import {
   CardAction,
   CardAsset,
   CardTimer,
+  Badge,
   CardContent,
   CardBadge,
   CardTitle,
@@ -38,8 +39,7 @@ import GuidedTourHomepage from "../../components/GuidedTour/Homepage";
 import SocialLinks from "./SocialLinks";
 import HomeHeader from "./HomeHeader";
 import ContentBlocks from "./ContentBlocks";
-import { Typography } from "@strapi/design-system";
-import { Play, Check, ArrowRight } from "@strapi/icons";
+import { Play, Check, ArrowRight, Upload } from "@strapi/icons";
 import {
   VALID_CONTEXT,
   useCurrentWebsiteContext,
@@ -103,6 +103,7 @@ const HomePage = () => {
   }, [collectionTypes, singleTypes]);
 
   const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [currentWebsiteContext, setCurrentWebsiteContext] =
     useCurrentWebsiteContext();
 
@@ -115,6 +116,11 @@ const HomePage = () => {
     }, 200);
   };
 
+  const handleCallYoutubeSync = async () => {
+    setLoading(true)
+    await fetch('/api/youtube-video/sync');
+  }
+
   const { status, data: currentUser } = useQuery('user', () => fetchUser(), {
     onSuccess() {
       console.log('success')
@@ -126,8 +132,20 @@ const HomePage = () => {
       });
     },
   });
-  console.debug("[DEBUG] ~ file: index.js:127 ~ currentUser:", currentUser)
 
+  const [stats, setStats] = useState([])
+
+  useEffect(() => {
+    async function getStats() {
+      // const statsResponse = (await fetch(`http://localhost:1337/api/website/stats${currentWebsiteContext && `?site=${currentWebsiteContext}`}`));
+      const statsResponse = (await fetch(`/api/website/stats${currentWebsiteContext ? `?site=${currentWebsiteContext}` : ``}`));
+      const data = await statsResponse.json()
+      setStats(data?.data)
+    }
+    if (currentWebsiteContext) {
+      getStats()
+    }
+  }, [currentWebsiteContext])
 
   const isFetchingUser = status !== 'success';
   const authorizedWebsites = currentUser?.roles?.find(e => e.code === "strapi-super-admin") ? VALID_CONTEXT : currentUser?.roles?.filter(e => VALID_CONTEXT.includes(e.name)).map(e => e.name);
@@ -155,6 +173,44 @@ const HomePage = () => {
                 background="neutral0"
                 shadow="tableShadow"
               >
+                <>
+                  <Flex gap="2rem" justify="center" align="space-between" style={{ flexWrap: "wrap", alignItems: "start"}}>
+                    {(stats ?? []).map(e => (
+                      <Card style={{ width: 'auto', flex: "0 48%"}}>
+                        <CardBody>
+                          {/* <Box padding={2} background="primary100">
+                            <Pencil />
+                          </Box> */}
+                          <CardContent>
+                            <CardTitle>{e.title}</CardTitle>
+                            <CardSubtitle style={{ display: "flex", flexDirection: "column", gap: "0.25rem", marginTop: "0.5rem"}}>
+                              {e.data && e.data.map(post => (
+                                <a style={{ display: "block", color: "#0b7931", textDecoration: "none"}} href={`https://cms.tamdagroup.eu/admin/content-manager/collectionType/api::post.post/${post.id}`} target="_blank" title={post.title}>{post.title} - <Badge>{post.views ?? 0}</Badge></a>
+                              ))}
+                            </CardSubtitle>
+                          </CardContent>
+                          {e.count != null && (
+                            <CardBadge active>{e.count}</CardBadge>
+                          )}
+                        </CardBody>
+                      </Card>
+                    ))}
+                    {stats.length == 0 && 'Loading...'}
+                  </Flex>
+                </>
+              </Box>
+            </GridItem>
+          </Grid>
+          <br />
+          <br />
+          <Grid gap={6}>
+            <GridItem col={12} s={12}>
+              <Box
+                padding={4}
+                hasRadius
+                background="neutral0"
+                shadow="tableShadow"
+              >
                 {authorizedWebsites.length > 0 ? (
                   <>
                     <h3
@@ -165,7 +221,7 @@ const HomePage = () => {
                         marginBottom: "15px",
                       }}
                     >
-                      Choose website below to edit
+                      Choose 1 website below to edit
                     </h3>
                     <Flex gap="2rem" justify="center" align="space-between">
                       {isAdmin && (
@@ -281,9 +337,9 @@ const HomePage = () => {
                   )}
                   {(isAdmin || authorizedWebsites.includes("tamdamedia.eu")) && (
                     <LinkButton
-                      variant={"tertiary"}
-                      endIcon={<ArrowRight />}
-                      to="/content-manager/singleType/api::tamda-media-eu-setting.tamda-media-eu-setting"
+                    variant={"tertiary"}
+                    endIcon={<ArrowRight />}
+                    to="/content-manager/singleType/api::tamda-media-eu-setting.tamda-media-eu-setting"
                     >
                       Tamda Media Global Settings
                     </LinkButton>
@@ -292,6 +348,103 @@ const HomePage = () => {
               </Box>
             </GridItem>
           </Grid>
+          <br />
+          <br />
+          <Grid gap={6}>
+            <GridItem col={12} s={12}>
+              <Box
+                padding={4}
+                hasRadius
+                background="neutral0"
+                shadow="tableShadow"
+              >
+                <h3
+                  style={{
+                    fontWeight: "600",
+                    fontSize: "18px",
+                    color: "#999",
+                    marginBottom: "15px",
+                  }}
+                >
+                  Information
+                </h3>
+                <LinksContainer
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "start",
+                    gap: "1rem",
+                  }}
+                >
+                  {(isAdmin || authorizedWebsites.includes("tamdamedia.eu")) && (
+                    <>
+                      <h4>Youtube Video on TamdaMedia</h4>
+                      {/* <p style={{ fontSize: '12px', fontStyle: "italic"}}>Last synced from Youtube: </p> */}
+                      <div>
+                        <Button
+                          variant={"tertiary"}
+                          onClick={() => handleCallYoutubeSync()}
+                          endIcon={<ArrowRight />}
+                          loading={loading}
+                          >
+                          {loading ? "Synchronizing..." : "Click here to Start synchronize videos from Youtube Playlist"}
+                        </Button>
+                      </div>
+                      <p>
+                        {loading && "Synchronizing, could be take more than 2 minutes. Please comeback later."}
+                      </p>
+                    </>
+                  )}
+                </LinksContainer>
+              </Box>
+            </GridItem>
+          </Grid>
+          <br />
+          <br />
+          {(isAdmin || authorizedWebsites.includes("tamdafoods.eu") || authorizedWebsites.includes("tamdagroup.eu")) && (
+          <Grid gap={6}>
+            <GridItem col={12} s={12}>
+              <Box
+                padding={4}
+                hasRadius
+                background="neutral0"
+                shadow="tableShadow"
+              >
+                <h3
+                  style={{
+                    fontWeight: "600",
+                    fontSize: "18px",
+                    color: "#999",
+                    marginBottom: "15px",
+                  }}
+                >
+                  Data Export
+                </h3>
+                <LinksContainer
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "start",
+                    gap: "1rem",
+                  }}
+                >
+                    <>
+                      <h4>Employment candidates</h4>
+                      {/* <p style={{ fontSize: '12px', fontStyle: "italic"}}>Last synced from Youtube: </p> */}
+                      <div>
+                        <LinkButton
+                          to="https://cms.tamdagroup.eu/api/website/export"
+                          startIcon={<Upload />}
+                        >
+                          Export Data
+                        </LinkButton>
+                      </div>
+                    </>
+                </LinksContainer>
+              </Box>
+            </GridItem>
+          </Grid>
+          )}
         </Box>
       </Main>
     </Layout>

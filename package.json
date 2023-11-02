@@ -1,6 +1,6 @@
 {
   "name": "@danhuyenphan/strapi-admin",
-  "version": "4.10.3",
+  "version": "4.10.8",
   "description": "Strapi Admin",
   "license": "MIT",
   "main": "index.js",

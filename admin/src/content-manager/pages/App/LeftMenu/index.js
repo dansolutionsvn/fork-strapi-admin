@@ -35,8 +35,6 @@ const LeftMenu = () => {
   const { formatMessage, locale } = useIntl();
   const modelLinksSelector = useMemo(makeSelectModelLinks, []);
   const { collectionTypeLinks, singleTypeLinks } = useSelector(modelLinksSelector, shallowEqual);
-  console.debug("[DEBUG] ~ file: index.js:29 ~ singleTypeLinks:", singleTypeLinks)
-  console.debug("[DEBUG] ~ file: index.js:29 ~ collectionTypeLinks:", collectionTypeLinks)
 
   const mainLinks = [
     "api::post.post",
@@ -61,7 +59,8 @@ const LeftMenu = () => {
     "api::supllier.supllier",
     "api::tag.tag",
     "api::translation.translation",
-    "api::website.website"
+    "api::website.website",
+    "api::youtube-video.youtube-video",
   ];
 
   const { startsWith } = useFilter(locale, {

@@ -74,10 +74,11 @@ const App = () => {
   }
 
   if (!contentTypeMatch && authorisedModels.length > 0) {
+    const defaultRoute = authorisedModels.find(e => e.uid === "api::post.post") ?? authorisedModels[0]
     return (
       <Redirect
-        to={`${authorisedModels[0].to}${
-          authorisedModels[0].search ? `?${authorisedModels[0].search}` : ''
+        to={`${defaultRoute.to}${
+          defaultRoute.search ? `?${defaultRoute.search}` : ''
         }`}
       />
     );
